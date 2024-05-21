@@ -1,5 +1,6 @@
-from random import randint, choice
+from random import choice
 from time import sleep
+
 
 def loosing_check(board):
     if ' ' not in board.values():
@@ -7,17 +8,20 @@ def loosing_check(board):
         loose = True
         return loose
 
+
 def board_printer(board_struct):
     val = list(board_struct.values())
-    for i in range(0,9):
-        if (i+1)/3 in range(4):
+    for i in range(0, 9):
+        if (i + 1) / 3 in range(4):
             print(val[i], )
         else:
             print(val[i], ' ', end='')
 
+
 def victory(board):
     # Check victory conditions
-    global victoryX; global victoryO
+    global victoryX
+    global victoryO
     if board['TL'] == 'X' and board['TM'] == 'X' and board['TR'] == 'X':
         victoryX = True
     elif board['ML'] == 'X' and board['MM'] == 'X' and board['MR'] == 'X':
@@ -60,7 +64,8 @@ def victory(board):
         print('Computer Wins! Better luck next time!')
         return True
 
-def add_letter(temp_board, play):
+
+def add_letter(tempboard, play):
     e1 = 0
     for k in tempboard.keys():
         if play == k:
@@ -78,17 +83,37 @@ def add_letter(temp_board, play):
         raise Exception
 
 
+def corners_play():
+    global pcmove
+    pcmove = 1
+    corners = ['TL', 'TR', 'BL', 'BR']
+    c = choice(corners)
+    oc = 0
+    for cc in corners:
+        if tempboard[cc] != ' ':
+            oc += 1
+    if oc != 4:
+        while True:
+            if tempboard[c] == ' ':
+                tempboard[c] = 'O'
+                pcmove -= 1
+                break
+            else:
+                c = choice(corners)
+
+
 print('Choose a cell to enter \'X\' or \'O\' in it.')
 print('TL TM TR\n'
       'ML MM MR\n'
       'BL BM BR')
 
 while True:
-    board = {'TL':' ', 'TM':' ', 'TR':' ',
-             'ML':' ', 'MM':' ', 'MR':' ',
-             'BL':' ', 'BM':' ', 'BR':' '}
+    board = {'TL': ' ', 'TM': ' ', 'TR': ' ',
+             'ML': ' ', 'MM': ' ', 'MR': ' ',
+             'BL': ' ', 'BM': ' ', 'BR': ' '}
     # Initial victory conditions set to false
-    victoryX = False; victoryO = False
+    victoryX = False
+    victoryO = False
 
     while True:
         # First play from the player
@@ -108,26 +133,17 @@ while True:
                 if tempboard['MM'] == ' ':
                     tempboard['MM'] = 'O'
                 elif tempboard['MM'] == 'X':
-                    corners = ['TL', 'TR', 'BL', 'BR']
-                    c = choice(corners); oc = 0
-                    for cc in corners:
-                        if tempboard[cc] != ' ':
-                            oc += 1
-                    if oc != 4:
-                        while True:
-                            if tempboard[c] == ' ':
-                                tempboard[c] = 'O'
-                                break
-                            else:
-                                c = choice(corners)
+                    corners_play()
                 print('The computer has chosen it\'s move!')
                 board_printer(tempboard)
                 board = tempboard.copy()
 
                 # Player's next move
                 while True:
-                    pcmove = 1; error = False
-                    O_win = ' '; X_block = ' '
+                    pcmove = 1
+                    error = False
+                    O_win = ' '
+                    X_block = ' '
                     play = input('Enter your choice:\n')
                     try:
                         add_letter(tempboard, play)
@@ -147,7 +163,8 @@ while True:
                     if (not victory(board) or not loosing_check(board)) and not error:
                         # Top row check logic
                         top = ['TL', 'TM', 'TR']
-                        top_equal_letters_X = 0; top_equal_letters_O = 0
+                        top_equal_letters_X = 0
+                        top_equal_letters_O = 0
                         for l in top:
                             if tempboard[l] == 'X':
                                 top_equal_letters_X += 1
@@ -164,7 +181,7 @@ while True:
 
                         # Middle row check logic
                         middle = ['ML', 'MM', 'MR']
-                        middle_equal_letters_X = 0;
+                        middle_equal_letters_X = 0
                         middle_equal_letters_O = 0
                         for l in middle:
                             if tempboard[l] == 'X':
@@ -260,7 +277,7 @@ while True:
                             if tempboard[l] == 'X':
                                 ldiag_equal_letters_X += 1
                             elif tempboard[l] == 'O':
-                                ldiag_equal_letters_O+= 1
+                                ldiag_equal_letters_O += 1
                         if ldiag_equal_letters_O == 2 and ldiag_equal_letters_X + ldiag_equal_letters_O != 3 and pcmove == 1:
                             for l in ldiag:
                                 if tempboard[l] == ' ':
@@ -294,12 +311,17 @@ while True:
                         elif X_block != ' ':
                             tempboard[X_block] = 'O'
                         elif pcmove == 1 and ' ' in tempboard.values():
+                            corners_play()
+                        elif pcmove == 1 and ' ' in tempboard.values():
                             empty = []
                             for k in tempboard.keys():
                                 if tempboard[k] == ' ':
                                     empty.append(k)
-                            tempboard[choice(empty)] = 'O'
-                            pcmove -= 1
+                            while True:
+                                tch = choice(empty)
+                                if tch == ' ':
+                                    tempboard[tch] = 'O'
+                                    pcmove -= 1
 
                         print('The computer has made it\'s move!')
                         board_printer(tempboard)
