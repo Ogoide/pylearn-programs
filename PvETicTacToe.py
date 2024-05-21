@@ -1,21 +1,40 @@
+import os.path
 from random import choice
 from time import sleep
+from datetime import datetime
+import pickle
 
-mm = True
 def loosing_check(board):
     if ' ' not in board.values():
         print('The board is full - better luck next time!')
+        log(board, 'Draw.')
         loose = True
         return loose
 
 
 def board_printer(board_struct):
-    val = list(board_struct.values())
-    for i in range(0, 9):
-        if (i + 1) / 3 in range(4):
-            print(val[i], )
-        else:
-            print(val[i], ' ', end='')
+    s = ''
+    board_keys_correspondence = {}
+    board_keys = list(board_struct.keys())
+    for i in range(1, 10):  # 1-9
+        board_keys_correspondence.setdefault(i, board_keys[i-1])
+    for i in range(1, 10):
+        s += board_struct[board_keys_correspondence[i]] + ' '
+        if i % 3 == 0:
+            s += '\n'
+    print(s)
+
+def board_printer_logger(board_struct):
+    s = ''
+    board_keys_correspondence = {}
+    board_keys = list(board_struct.keys())
+    for i in range(1, 10):  # 1-9
+        board_keys_correspondence.setdefault(i, board_keys[i-1])
+    for i in range(1, 10):
+        s += board_struct[board_keys_correspondence[i]] + ' '
+        if i % 3 == 0:
+            s += '\n'
+    return s
 
 
 def victory(board):
@@ -55,6 +74,7 @@ def victory(board):
         victoryO = True
     elif board['BL'] == 'O' and board['MM'] == 'O' and board['TR'] == 'O':
         victoryO = True
+
     if victoryX:
         board_printer(board)
         print('X Player Wins! Congratulations!')
@@ -101,6 +121,56 @@ def corners_play():
             else:
                 c = choice(corners)
 
+def setup_time():
+    date_format = '%H%M-%d%m%Y'
+    now = datetime.now()
+    global time_string
+    time_string = f'Log_{now:{date_format}}'
+
+def log(board, action):
+    board_struct = {}
+    for k, v in board.items():
+        if v == ' ':
+            board_struct[k] = '_'
+        else:
+            board_struct[k] = v
+    file_path = os.path.join(config(),f'{time_string}.txt')
+    if action == 'Start':
+        with open(file_path, 'w') as file:
+            file.write('Game started.\n')
+            for row in board_printer_logger(board_struct).split('\n'):
+                quote_row = ''.join(f'"{i}" ' for i in row.split())
+                file.write(quote_row + '\n')
+            file.write('-' * 20 + '\n')
+    else:
+        with open(file_path, 'a') as file:
+            file.write(action + '\n')
+            for row in board_printer_logger(board_struct).split('\n'):
+                quote_row = ''.join(f'"{i}" ' for i in row.split())
+                file.write(quote_row + '\n')
+            file.write('-' * 20 + '\n')
+
+
+def config():
+    try:
+        config_file = open('config.txt', 'rb')
+        log_path = pickle.load(config_file)
+        config_file.close()
+        return log_path
+    except:
+        while True:
+            log_path = input('This game registers all moves in the form of a log file, which is created everytime the game starts.\n'
+                             'As such, please provide a path to the directory where this file should be created.\n').strip()
+            if os.path.exists(log_path):
+                config_file = open('config.txt', 'wb')
+                pickle.dump(log_path, config_file)
+                config_file.close()
+                break
+            else:
+                print('This path doesn\'t exist or is inaccessible.')
+
+
+config()
 
 print('Choose a cell to enter \'X\' or \'O\' in it.')
 print('TL TM TR\n'
@@ -115,6 +185,13 @@ while True:
     victoryX = False
     victoryO = False
 
+    mm = True
+
+    # Setup filename for this session's log
+    setup_time()
+    # Initialize the log
+    log(board, 'Start')
+
     while True:
         # First play from the player
         error = False
@@ -126,6 +203,7 @@ while True:
             add_letter(tempboard, play)
         except:
             error = True
+        log(tempboard, 'Player\'s first move.')
 
         while True:
             if not error:
@@ -138,6 +216,7 @@ while True:
 
                 print('The computer has chosen it\'s move!')
                 board_printer(tempboard)
+                log(tempboard, 'Computer\'s first move.')
                 board = tempboard.copy()
 
                 # Player's next move
@@ -151,6 +230,7 @@ while True:
                         add_letter(tempboard, play)
                         print('You made a move.')
                         board_printer(tempboard)
+                        log(tempboard, 'Player\'s next move.')
                         board = tempboard.copy()
                         sleep(1)
                     except:
@@ -346,12 +426,17 @@ while True:
                                     tempboard[tch] = 'O'
                                     pcmove -= 1
 
-                        print('The computer has made it\'s move!')
+                        print('The computer has made its move!')
                         board_printer(tempboard)
+                        log(tempboard, 'Computer\'s next move.')
                         board = tempboard.copy()
 
                         victory(tempboard)
                         if victory(tempboard):
+                            if victoryX:
+                                log(tempboard, 'Player wins.')
+                            if victoryO:
+                                log(tempboard, 'Computer wins.')
                             exit()
                         if loosing_check(tempboard):
                             exit()
