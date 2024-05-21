@@ -1,7 +1,7 @@
 from random import choice
 from time import sleep
 
-
+mm = True
 def loosing_check(board):
     if ' ' not in board.values():
         print('The board is full - better luck next time!')
@@ -132,8 +132,10 @@ while True:
                 # Computer game-logic and player counterplay
                 if tempboard['MM'] == ' ':
                     tempboard['MM'] = 'O'
+                    mm = False
                 elif tempboard['MM'] == 'X':
                     corners_play()
+
                 print('The computer has chosen it\'s move!')
                 board_printer(tempboard)
                 board = tempboard.copy()
@@ -159,8 +161,9 @@ while True:
                         exit()
                     if loosing_check(board):
                         exit()
-
+                    teste = 1
                     if (not victory(board) or not loosing_check(board)) and not error:
+
                         # Top row check logic
                         top = ['TL', 'TM', 'TR']
                         top_equal_letters_X = 0
@@ -310,6 +313,26 @@ while True:
                             tempboard[O_win] = 'O'
                         elif X_block != ' ':
                             tempboard[X_block] = 'O'
+                        elif pcmove == 1 and ' ' in tempboard.values() and mm == False:
+                            for k in tempboard.keys():
+                                if tempboard[k] == 'X':
+                                    if k == 'TL' and teste==1:
+                                        l1 = ['TM', 'ML']
+                                        tempboard[choice(l1)] = 'O'
+                                        teste -= 1
+                                    elif k == 'TR' and teste==1:
+                                        l1 = ['TM', 'MR']
+                                        tempboard[choice(l1)] = 'O'
+                                        teste -= 1
+                                    elif k == 'BR' and teste==1:
+                                        l1 = ['BM', 'MR']
+                                        tempboard[choice(l1)] = 'O'
+                                        teste -= 1
+                                    elif k == 'BL' and teste==1:
+                                        l1 = ['BM', 'ML']
+                                        tempboard[choice(l1)] = 'O'
+                                        teste -= 1
+
                         elif pcmove == 1 and ' ' in tempboard.values():
                             corners_play()
                         elif pcmove == 1 and ' ' in tempboard.values():
