@@ -508,22 +508,7 @@ if play_start:
 
                             elif pcmove == 1 and (' ' in corners_val):
                                 corners_play()
-                                '''
-                                corners = ['TL', 'TR', 'BL', 'BR']
-                                c = choice(corners)
-                                oc = 0
-                                for cc in corners:
-                                    if tempboard[cc] != ' ':
-                                        oc += 1
-                                if oc != 4:
-                                    while True:
-                                        if tempboard[c] == ' ':
-                                            tempboard[c] = 'O'
-                                            pcmove -= 1
-                                            break
-                                        else:
-                                            c = choice(corners)
-                                '''
+
 
                             elif pcmove == 1:
                                 empty_vals = []
@@ -545,12 +530,12 @@ if play_start:
 
                         victory(tempboard)
                         if victoryX or victoryO:
-                            '''
+
                             if victoryX:
                                 log(tempboard, 'Player wins.')
                             if victoryO:
                                 log(tempboard, 'Computer wins.')
-                            '''
+
                             exit()
                         if loosing_check(tempboard):
                             exit()
